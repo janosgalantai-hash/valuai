@@ -1,14 +1,10 @@
 import anthropic
+import base64
 import json
 import re
 from app.core.config import settings
 
 client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
-
-SYSTEM_PROMPT = """You are a professional appraiser with 20+ years of experience in antiques, collectibles, electronics, jewelry, watches, and secondhand goods.
-You have deep knowledge of eBay sold listings, auction house results, collector markets, and current retail pricing worldwide.
-You always research actual recent sold prices before estimating value — never guess without market data.
-You are precise, data-driven, and identify items as specifically as possible (brand, model, year, edition, serial range if visible)."""
 
 def analyze_images_and_estimate(images_base64: list[str], description: str, currency: str = "USD") -> dict:
     content = []
@@ -21,43 +17,30 @@ def analyze_images_and_estimate(images_base64: list[str], description: str, curr
                 "data": img_b64
             }
         })
-
     content.append({
         "type": "text",
-        "text": f"""Analyze the item in the provided image(s) and estimate its current market value.
-
-User description: {description if description else "No description provided"}
-Target currency: {currency}
-
-Follow these steps before responding:
-1. IDENTIFY the item as precisely as possible — brand, model, year, variant, edition, any visible markings
-2. SEARCH eBay completed/sold listings for this exact item to find real transaction prices
-3. SEARCH relevant auction house results, collector forums, or marketplace sold prices
-4. SEARCH current retail price (new) if the item is still manufactured, as a reference point
-5. ASSESS condition objectively from the images — note any visible wear, damage, or notable features
-6. CALCULATE a realistic price range based on actual market data, weighted toward recent sold prices
-
-After completing your research, respond ONLY with the following JSON object.
-No markdown formatting, no code blocks, no explanation — raw JSON only:
+        "text": f"""You are an expert appraiser. Analyze the provided images and description, then estimate the market value.
+Description: {description if description else 'No description provided'}
+IMPORTANT: Return ALL prices in {currency} currency. Research current market prices in {currency}.
+Respond ONLY with a JSON object, no markdown, no explanation:
 {{
-  "item_name": "precise item name including brand and model",
-  "category": "watch/jewelry/electronics/collectible/furniture/art/clothing/other",
+  "item_name": "identified item name",
+  "category": "category (watch/jewelry/electronics/collectible/furniture/art/other)",
   "condition": "excellent/good/fair/poor",
-  "condition_notes": "specific observations about condition based on the images",
-  "price_min": <lowest realistic sold price as a number in {currency}>,
-  "price_max": <highest realistic sold price as a number in {currency}>,
-  "price_recommended": <most likely private sale price as a number in {currency}>,
+  "condition_notes": "brief condition assessment",
+  "price_min": 0,
+  "price_max": 0,
+  "price_recommended": 0,
   "currency": "{currency}",
-  "summary": "2-3 sentences describing the item and its market value. Write this in the same language as the user description.",
-  "market_references_count": <integer: number of market data points found>,
+  "summary": "2-3 sentence summary in the same language as the description",
+  "market_references_count": 0,
   "confidence": "high/medium/low"
 }}"""
     })
 
     message = client.messages.create(
-        model="claude-opus-4-5",
-        max_tokens=4096,
-        system=SYSTEM_PROMPT,
+        model="claude-sonnet-4-5",
+        max_tokens=1024,
         tools=[{
             "type": "web_search_20250305",
             "name": "web_search"
@@ -71,22 +54,16 @@ No markdown formatting, no code blocks, no explanation — raw JSON only:
     for block in message.content:
         if block.type == "text":
             text = block.text.strip()
-            text = re.sub(r"^```[a-z]*\n?", "", text)
-            text = re.sub(r"\n?```$", "", text)
-            text = text.strip()
             try:
                 result = json.loads(text)
                 result["_tokens"] = {"input": input_tokens, "output": output_tokens}
                 return result
             except json.JSONDecodeError:
-                match = re.search(r"\{.*\}", text, re.DOTALL)
+                match = re.search(r'\{.*\}', text, re.DOTALL)
                 if match:
-                    try:
-                        result = json.loads(match.group())
-                        result["_tokens"] = {"input": input_tokens, "output": output_tokens}
-                        return result
-                    except json.JSONDecodeError:
-                        pass
+                    result = json.loads(match.group())
+                    result["_tokens"] = {"input": input_tokens, "output": output_tokens}
+                    return result
 
     return {
         "item_name": "Unknown",

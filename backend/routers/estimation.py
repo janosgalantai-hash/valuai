@@ -83,13 +83,9 @@ async def create_estimation(
     try:
         from app.services.ai_service import analyze_images_and_estimate
         result = analyze_images_and_estimate(images_base64, description or "", currency or "USD")
-        # Token mentése
         tokens = result.pop("_tokens", {"input": 0, "output": 0})
         estimation.input_tokens = tokens["input"]
         estimation.output_tokens = tokens["output"]
-
-        estimation.result = result
-        estimation.status = "done"
         estimation.result = result
         estimation.status = "done"
     except Exception as e:
