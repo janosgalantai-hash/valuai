@@ -520,13 +520,99 @@ val ChineseStrings = AppStrings(
     infoProfile               = "在个人资料中可以设置首选货币和应用语言。\n\n您也可以在此充值积分，以继续使用AI估价服务。",
 )
 
+// ── Filipino (Tagalog) ───────────────────────────────────────────────────────
+val FilipinoStrings = AppStrings(
+    appSubtitle               = "AI Pagtatasa ng Halaga",
+    emailLabel                = "Email",
+    passwordLabel             = "Password",
+    signIn                    = "Mag-sign In",
+    noAccount                 = "Wala pang account? ",
+    signUpLink                = "Mag-sign Up",
+    incorrectCredentials      = "Mali ang email o password",
+    connectionError           = "Error sa koneksyon",
+
+    signUp                    = "Mag-sign Up",
+    createAccount             = "Gumawa ng ValuAI account",
+    registrationSuccess       = "Matagumpay na nagrehistro!",
+    canNowSignIn              = "Maaari ka nang mag-sign in sa iyong account.",
+    emailAddress              = "Email address",
+    minimumChars              = "Minimum 8 na karakter",
+    confirmPassword           = "Kumpirmahin ang password",
+    fillAllFields             = "Pakipunan ang lahat ng field",
+    invalidEmail              = "Hindi wastong email address",
+    passwordTooShort          = "Ang password ay dapat na hindi bababa sa 8 karakter",
+    passwordsMismatch         = "Hindi magkatugma ang mga password",
+    emailTaken                = "Ginagamit na ang email na ito",
+    invalidData               = "Hindi wastong data",
+
+    addPhotoTitle             = "Magdagdag ng Larawan",
+    camera                    = "Camera",
+    gallery                   = "Gallery",
+    photosLabel               = "MGA LARAWAN (1–4)",
+    multipleAnglesHint        = "• Ang mga larawan mula sa iba't ibang anggulo ay nagbibigay ng mas tumpak na pagtatantya",
+    addPhotoSmall             = "Magdagdag ng larawan",
+    descriptionLabel          = "PAGLALARAWAN",
+    describePlaceholder       = "Ilarawan ang bagay (edad, kondisyon, brand...)",
+    viewResult                = "✓ Tingnan ang Resulta",
+    startAppraisal            = "+ Simulan ang AI Pagtatasa",
+    emptyResponse             = "Walang sagot mula sa server",
+    unknownError              = "Hindi kilalang error",
+
+    history                   = "Kasaysayan",
+    appraisalsCount           = "%d pagtatasa",
+    noAppraisals              = "Wala pang pagtatasa",
+    unknownItem               = "Hindi kilalang bagay",
+    conditionExcellent        = "Napakagaling",
+    conditionGood             = "Mabuti",
+    conditionFair             = "Katamtaman",
+    conditionPoor             = "Mahina",
+
+    appraisalTitle            = "Pagtatasa",
+    estimatedMarketValue      = "TINANTIYANG HALAGA SA MERKADO",
+    recommendedPrice          = "Inirerekomendang presyo: ~",
+    aiSummary                 = "AI Buod",
+    marketReferences          = "MGA SANGGUNIAN SA MERKADO",
+    min                       = "Min",
+    avg                       = "Avg",
+    max                       = "Max",
+    appraisalConfidence       = "• Kumpiyansa ng pagtatasa",
+    confidenceHigh            = "Mataas",
+    confidenceMedium          = "Katamtaman",
+    confidenceLow             = "Mababa",
+    noData                    = "Walang available na data",
+
+    profile                   = "Profile",
+    settingsSubtitle          = "Mga Setting at kagustuhan",
+    preferencesSection        = "MGA KAGUSTUHAN",
+    currency                  = "Pera",
+    appLanguage               = "Wika ng App",
+    selectCurrency            = "Pumili ng Pera",
+    topUp                     = "Mag-top Up ng Kredito",
+    comingSoon                = "Paparating na",
+
+    cameraPermissionRequired  = "Kailangan ang pahintulot sa camera",
+    grantPermission           = "Bigyan ng Pahintulot",
+
+    navAppraise               = "Tasahin",
+    navHistory                = "Kasaysayan",
+    navProfile                = "Profile",
+    navInfo                   = "Impormasyon",
+
+    infoTitle                 = "IMPORMASYON",
+    infoClose                 = "I-tap kahit saan para isara",
+    infoEstimation            = "Mas maraming larawan ang mag-a-upload (hanggang 4) at mas detalyado ang iyong paglalarawan — hal. brand, edad, kondisyon — mas tumpak ang pagtatantya ng AI.\n\nAng resulta ng pagtatasa ay ibabalik sa wikang ginamit mo sa paglalarawan.",
+    infoHistory               = "Dito makikita ang lahat ng iyong nakaraang pagtatasa. I-tap ang anumang aytem para makita ang buong resulta.",
+    infoProfile               = "Sa profile maaari mong itakda ang iyong gustong pera at wika ng app.\n\nMaaari ka ring mag-top up ng iyong mga kredito dito para mapatuloy ang paggamit ng serbisyong AI pagtatasa.",
+)
+
 // ── CompositionLocal ──────────────────────────────────────────────────────────
 val LocalStrings = compositionLocalOf<AppStrings> { EnglishStrings }
 
 fun stringsForLanguage(language: String): AppStrings = when (language) {
-    "Magyar"   -> HungarianStrings
-    "Deutsch"  -> GermanStrings
-    "Français" -> FrenchStrings
-    "中文"      -> ChineseStrings
-    else       -> EnglishStrings
+    "Magyar"    -> HungarianStrings
+    "Deutsch"   -> GermanStrings
+    "Français"  -> FrenchStrings
+    "中文"       -> ChineseStrings
+    "Filipino"  -> FilipinoStrings
+    else        -> EnglishStrings
 }

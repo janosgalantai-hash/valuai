@@ -40,7 +40,7 @@ fun ProfileScreen() {
     val strings = LocalStrings.current
 
     val currencies = listOf("NZD", "AUD", "USD", "EUR", "GBP", "HUF", "CHF", "JPY")
-    val languages  = listOf("English", "Magyar", "Deutsch", "Français", "中文")
+    val languages  = listOf("English", "Magyar", "Deutsch", "Français", "中文", "Filipino")
 
     // Currency dialog
     if (showCurrencyDialog) {
@@ -229,5 +229,6 @@ fun languageFlag(language: String): String = when (language) {
     "Deutsch"  -> "🇩🇪"
     "Français" -> "🇫🇷"
     "中文"      -> "🇨🇳"
+    "Filipino" -> "🇵🇭"
     else       -> "🌐"
 }
