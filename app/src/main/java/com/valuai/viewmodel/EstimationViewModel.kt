@@ -7,7 +7,9 @@ import androidx.lifecycle.viewModelScope
 import com.valuai.TokenManager
 import com.valuai.network.ApiClient
 import com.valuai.network.EstimationResponse
+import com.valuai.network.ImageRepository
 import com.valuai.network.ResultRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
@@ -31,21 +33,36 @@ class EstimationViewModel : ViewModel() {
     private val _state = MutableStateFlow<EstimationState>(EstimationState.Idle)
     val state: StateFlow<EstimationState> = _state
 
-    // Ezek túlélik az orientáció váltást
-    private val _selectedImages = MutableStateFlow<List<Uri>>(emptyList())
-    val selectedImages: StateFlow<List<Uri>> = _selectedImages
+    private val _imagePaths = MutableStateFlow<List<String>>(emptyList())
+    val imagePaths: StateFlow<List<String>> = _imagePaths
 
     private val _description = MutableStateFlow("")
     val description: StateFlow<String> = _description
 
-    fun addImage(uri: Uri) {
-        if (_selectedImages.value.size < 4) {
-            _selectedImages.value = _selectedImages.value + uri
+    fun addImage(filePath: String) {
+        if (_imagePaths.value.size < 4) {
+            _imagePaths.value = _imagePaths.value + filePath
+        }
+    }
+
+    fun addImageFromGallery(context: Context, uri: Uri) {
+        if (_imagePaths.value.size >= 4) return
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val dir = File(context.filesDir, "valuai_images").also { it.mkdirs() }
+                val dest = File(dir, "img_${System.currentTimeMillis()}.jpg")
+                context.contentResolver.openInputStream(uri)?.use { input ->
+                    FileOutputStream(dest).use { output -> input.copyTo(output) }
+                }
+                _imagePaths.value = _imagePaths.value + dest.absolutePath
+            } catch (e: Exception) {
+                android.util.Log.e("Gallery", "Failed to copy image: ${e.message}")
+            }
         }
     }
 
     fun removeImage(index: Int) {
-        _selectedImages.value = _selectedImages.value.toMutableList().also { it.removeAt(index) }
+        _imagePaths.value = _imagePaths.value.toMutableList().also { it.removeAt(index) }
     }
 
     fun setDescription(text: String) {
@@ -54,30 +71,23 @@ class EstimationViewModel : ViewModel() {
 
     private var resultNavigated = false
 
-    fun markResultNavigated() {
-        resultNavigated = true
-    }
-
+    fun markResultNavigated() { resultNavigated = true }
     fun isResultNavigated() = resultNavigated
 
-    // Csak az estimation state-et reseteli, képeket és leírást megtartja
     fun resetState() {
         _state.value = EstimationState.Idle
         resultNavigated = false
     }
 
-    // Teljes reset (új értékbecslés gomb után)
     fun reset() {
         _state.value = EstimationState.Idle
-        _selectedImages.value = emptyList()
+        _imagePaths.value = emptyList()
         _description.value = ""
         resultNavigated = false
     }
-    fun startEstimation(
-        context: Context,
-        imageUris: List<Uri>,
-        description: String
-    ) {
+
+    fun startEstimation(context: Context, description: String) {
+        val paths = _imagePaths.value
         viewModelScope.launch {
             _state.value = EstimationState.Loading
             try {
@@ -86,17 +96,19 @@ class EstimationViewModel : ViewModel() {
                 val currency = tokenManager.currency.first()
                 val authToken = "Bearer ${token ?: "TEST_TOKEN"}"
 
-                val imageParts = imageUris.mapIndexed { index, uri ->
-                    val file = uriToFile(context, uri, "image_$index.jpg")
-                    val requestBody = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
-                    MultipartBody.Part.createFormData("images", file.name, requestBody)
+                val imageParts = paths.mapIndexed { index, path ->
+                    val src = File(path)
+                    val tempFile = File(context.cacheDir, "upload_$index.jpg")
+                    val bitmap = android.graphics.BitmapFactory.decodeFile(path)
+                    FileOutputStream(tempFile).use { out ->
+                        bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 85, out)
+                    }
+                    val requestBody = tempFile.asRequestBody("image/jpeg".toMediaTypeOrNull())
+                    MultipartBody.Part.createFormData("images", tempFile.name, requestBody)
                 }
 
-                val descriptionBody = description
-                    .toRequestBody("text/plain".toMediaTypeOrNull())
-
-                val currencyBody = currency
-                    .toRequestBody("text/plain".toMediaTypeOrNull())
+                val descriptionBody = description.toRequestBody("text/plain".toMediaTypeOrNull())
+                val currencyBody = currency.toRequestBody("text/plain".toMediaTypeOrNull())
 
                 val response = ApiClient.api.createEstimation(
                     token       = authToken,
@@ -108,33 +120,17 @@ class EstimationViewModel : ViewModel() {
                 if (response.isSuccessful) {
                     response.body()?.let {
                         ResultRepository.lastResult = it
+                        ImageRepository.saveImages(context, it.id, paths)
                         _state.value = EstimationState.Success(it)
                     } ?: run {
                         _state.value = EstimationState.Error("Empty response from server")
                     }
                 } else {
-                    _state.value = EstimationState.Error(
-                        "Hiba: ${response.code()} — ${response.message()}"
-                    )
+                    _state.value = EstimationState.Error("Hiba: ${response.code()} — ${response.message()}")
                 }
             } catch (e: Exception) {
                 _state.value = EstimationState.Error(e.message ?: "Unknown error")
             }
         }
-    }
-
-    private fun uriToFile(context: Context, uri: Uri, fileName: String): File {
-        val file = File(context.cacheDir, fileName)
-
-        // Bitmap-ként olvassuk be és JPEG-ként mentjük
-        val inputStream = context.contentResolver.openInputStream(uri)!!
-        val bitmap = android.graphics.BitmapFactory.decodeStream(inputStream)
-        inputStream.close()
-
-        java.io.FileOutputStream(file).use { out ->
-            bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 85, out)
-        }
-
-        return file
     }
 }

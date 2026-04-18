@@ -2,7 +2,7 @@ package com.valuai.screens
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.net.Uri
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
@@ -36,69 +36,61 @@ import com.valuai.i18n.LocalStrings
 import com.valuai.ui.theme.*
 import com.valuai.viewmodel.EstimationState
 import com.valuai.viewmodel.EstimationViewModel
+import java.io.File
 
 @Composable
 fun EstimationScreen(navController: NavController) {
     val context = LocalContext.current
-    val viewModel: EstimationViewModel = viewModel()
+    val viewModel: EstimationViewModel = viewModel(context as ComponentActivity)
     val state by viewModel.state.collectAsState()
     val strings = LocalStrings.current
 
-    // ViewModel-ben tárolt state — túléli az orientáció váltást
-    val selectedImages by viewModel.selectedImages.collectAsState()
+    val imagePaths by viewModel.imagePaths.collectAsState()
     val description by viewModel.description.collectAsState()
 
     var showImageSourceDialog by remember { mutableStateOf(false) }
     val slots = 4
 
-    // Rendszer kamera
-    val cameraImageUri = remember { mutableStateOf<Uri?>(null) }
+    // Kamera: fájlútvonalat követünk, nem URI-t
+    val cameraFilePath = remember { mutableStateOf<String?>(null) }
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
         if (success) {
-            cameraImageUri.value?.let { uri ->
-                if (!selectedImages.contains(uri)) {
-                    viewModel.addImage(uri)
-                }
+            cameraFilePath.value?.let { path ->
+                viewModel.addImage(path)
             }
         }
     }
 
-    // Kamera jogosultság kérés
+    fun launchCamera() {
+        try {
+            val photoFile = File(
+                File(context.filesDir, "valuai_images").also { it.mkdirs() },
+                "img_${System.currentTimeMillis()}.jpg"
+            ).also { it.createNewFile() }
+            cameraFilePath.value = photoFile.absolutePath
+            val uri = androidx.core.content.FileProvider.getUriForFile(
+                context, "${context.packageName}.provider", photoFile
+            )
+            cameraLauncher.launch(uri)
+        } catch (e: Exception) {
+            android.util.Log.e("Camera", "Failed: ${e.message}")
+        }
+    }
+
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { granted ->
-        if (granted) {
-            try {
-                val photoFile = java.io.File(
-                    context.cacheDir,
-                    "photo_${System.currentTimeMillis()}.jpg"
-                ).also { file ->
-                    file.parentFile?.mkdirs()
-                    file.createNewFile()
-                }
-                val uri = androidx.core.content.FileProvider.getUriForFile(
-                    context,
-                    "${context.packageName}.provider",
-                    photoFile
-                )
-                cameraImageUri.value = uri
-                cameraLauncher.launch(uri)
-            } catch (e: Exception) {
-                android.util.Log.e("Camera", "Failed: ${e.message}")
-            }
-        }
+        if (granted) launchCamera()
     }
 
-    // Galéria
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
-        uri?.let { viewModel.addImage(it) }
+        uri?.let { viewModel.addImageFromGallery(context, it) }
     }
 
-    // Forrás választó dialógus
     if (showImageSourceDialog) {
         AlertDialog(
             onDismissRequest = { showImageSourceDialog = false },
@@ -110,32 +102,11 @@ fun EstimationScreen(navController: NavController) {
                         onClick = {
                             showImageSourceDialog = false
                             viewModel.resetState()
-                            val hasCameraPermission = ContextCompat.checkSelfPermission(
+                            val hasPermission = ContextCompat.checkSelfPermission(
                                 context, Manifest.permission.CAMERA
                             ) == PackageManager.PERMISSION_GRANTED
-
-                            if (hasCameraPermission) {
-                                try {
-                                    val photoFile = java.io.File(
-                                        context.cacheDir,
-                                        "photo_${System.currentTimeMillis()}.jpg"
-                                    ).also { file ->
-                                        file.parentFile?.mkdirs()
-                                        file.createNewFile()
-                                    }
-                                    val uri = androidx.core.content.FileProvider.getUriForFile(
-                                        context,
-                                        "${context.packageName}.provider",
-                                        photoFile
-                                    )
-                                    cameraImageUri.value = uri
-                                    cameraLauncher.launch(uri)
-                                } catch (e: Exception) {
-                                    android.util.Log.e("Camera", "Failed: ${e.message}")
-                                }
-                            } else {
-                                cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-                            }
+                            if (hasPermission) launchCamera()
+                            else cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                         },
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary)
@@ -168,9 +139,8 @@ fun EstimationScreen(navController: NavController) {
         Text(strings.photosLabel, fontSize = 11.sp, color = TextSecondary,
             letterSpacing = 1.sp, modifier = Modifier.padding(bottom = 8.dp))
 
-        // 2x2 fotó rács
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            for (row in 0..1) {"Add Photo"
+            for (row in 0..1) {
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.fillMaxWidth()
@@ -183,7 +153,7 @@ fun EstimationScreen(navController: NavController) {
                                 .aspectRatio(1f)
                                 .clip(RoundedCornerShape(10.dp))
                                 .background(
-                                    if (index < selectedImages.size) Color(0xFF1E1A14)
+                                    if (index < imagePaths.size) Color(0xFF1E1A14)
                                     else Color(0xFF12121E)
                                 )
                                 .border(
@@ -192,17 +162,17 @@ fun EstimationScreen(navController: NavController) {
                                     shape = RoundedCornerShape(10.dp)
                                 )
                                 .clickable {
-                                    if (index < selectedImages.size) {
+                                    if (index < imagePaths.size) {
                                         viewModel.removeImage(index)
-                                    } else if (selectedImages.size < slots) {
+                                    } else if (imagePaths.size < slots) {
                                         showImageSourceDialog = true
                                     }
                                 },
                             contentAlignment = Alignment.Center
                         ) {
-                            if (index < selectedImages.size) {
+                            if (index < imagePaths.size) {
                                 AsyncImage(
-                                    model = selectedImages[index],
+                                    model = File(imagePaths[index]),
                                     contentDescription = null,
                                     modifier = Modifier.fillMaxSize(),
                                     contentScale = ContentScale.Crop
@@ -220,7 +190,7 @@ fun EstimationScreen(navController: NavController) {
                                         tint = Color.White,
                                         modifier = Modifier.size(12.dp))
                                 }
-                            } else if (index == 0 && selectedImages.isEmpty()) {
+                            } else if (index == 0 && imagePaths.isEmpty()) {
                                 Column(
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     verticalArrangement = Arrangement.Center
@@ -229,8 +199,7 @@ fun EstimationScreen(navController: NavController) {
                                         tint = GoldPrimary,
                                         modifier = Modifier.size(28.dp))
                                     Spacer(Modifier.height(4.dp))
-                                    Text(strings.addPhotoSmall,
-                                        fontSize = 11.sp, color = GoldPrimary)
+                                    Text(strings.addPhotoSmall, fontSize = 11.sp, color = GoldPrimary)
                                 }
                             } else {
                                 Icon(Icons.Default.Add, null,
@@ -244,8 +213,7 @@ fun EstimationScreen(navController: NavController) {
         }
 
         Spacer(modifier = Modifier.height(6.dp))
-        Text(strings.multipleAnglesHint,
-            fontSize = 11.sp, color = TextCaption,
+        Text(strings.multipleAnglesHint, fontSize = 11.sp, color = TextCaption,
             modifier = Modifier.padding(bottom = 20.dp))
 
         Text(strings.descriptionLabel, fontSize = 11.sp, color = TextSecondary,
@@ -255,8 +223,7 @@ fun EstimationScreen(navController: NavController) {
             value = description,
             onValueChange = { viewModel.setDescription(it) },
             modifier = Modifier.fillMaxWidth().height(120.dp),
-            placeholder = { Text(strings.describePlaceholder,
-                color = TextCaption, fontSize = 14.sp) },
+            placeholder = { Text(strings.describePlaceholder, color = TextCaption, fontSize = 14.sp) },
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor      = GoldPrimary,
                 unfocusedBorderColor    = Color(0xFF2A2A3A),
@@ -278,7 +245,6 @@ fun EstimationScreen(navController: NavController) {
                 modifier = Modifier.padding(bottom = 12.dp))
         }
 
-        // Eredmény gomb ha kész
         if (state is EstimationState.Success) {
             Button(
                 onClick = {
@@ -296,14 +262,13 @@ fun EstimationScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(8.dp))
         }
 
-        // AI gomb
         Button(
             onClick = {
-                if (selectedImages.isNotEmpty() && description.isNotBlank()) {
-                    viewModel.startEstimation(context, selectedImages, description)
+                if (imagePaths.isNotEmpty() && description.isNotBlank()) {
+                    viewModel.startEstimation(context, description)
                 }
             },
-            enabled = selectedImages.isNotEmpty() &&
+            enabled = imagePaths.isNotEmpty() &&
                     description.isNotBlank() &&
                     state !is EstimationState.Loading,
             modifier = Modifier.fillMaxWidth().height(54.dp),
@@ -313,7 +278,7 @@ fun EstimationScreen(navController: NavController) {
                 disabledContainerColor = Color(0xFF5A4A2A)
             )
         ) {
-            if (state is EstimationState.Loading) {"New Appraisal"
+            if (state is EstimationState.Loading) {
                 CircularProgressIndicator(color = BackgroundDark,
                     modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
             } else {

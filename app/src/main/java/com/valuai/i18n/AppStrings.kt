@@ -83,6 +83,14 @@ data class AppStrings(
     val navAppraise: String,
     val navHistory: String,
     val navProfile: String,
+    val navInfo: String,
+
+    // Info dialog
+    val infoTitle: String,
+    val infoClose: String,
+    val infoEstimation: String,
+    val infoHistory: String,
+    val infoProfile: String,
 )
 
 // ── English ──────────────────────────────────────────────────────────────────
@@ -159,6 +167,13 @@ val EnglishStrings = AppStrings(
     navAppraise               = "Appraise",
     navHistory                = "History",
     navProfile                = "Profile",
+    navInfo                   = "Info",
+
+    infoTitle                 = "INFO",
+    infoClose                 = "Tap anywhere to close",
+    infoEstimation            = "The more photos you upload (up to 4) and the more detailed your description — e.g. brand, age, condition — the more accurate the AI estimate will be.\n\nThe appraisal result will be returned in the language you write the description in.",
+    infoHistory               = "Here you can see all your previous appraisals. Tap any item to view the full result.",
+    infoProfile               = "In the profile you can set your preferred currency and the app language.",
 )
 
 // ── Magyar ───────────────────────────────────────────────────────────────────
@@ -235,6 +250,13 @@ val HungarianStrings = AppStrings(
     navAppraise               = "Becslés",
     navHistory                = "Előzmények",
     navProfile                = "Profil",
+    navInfo                   = "Infó",
+
+    infoTitle                 = "INFÓ",
+    infoClose                 = "Koppints bárhova a bezáráshoz",
+    infoEstimation            = "Minél több képet töltesz fel (max. 4) és minél részletesebb leírást adsz meg — pl. márka, kor, állapot — annál pontosabb lesz az AI becslés.\n\nA becslés eredménye azon a nyelven érkezik vissza, amelyen a leírást megadtad.",
+    infoHistory               = "Itt látod az összes korábbi értékbecslésedet. Koppints bármelyikre a részletes eredmény megtekintéséhez.",
+    infoProfile               = "A profilban beállíthatod a kívánt valutát és az alkalmazás nyelvét.",
 )
 
 // ── Deutsch ──────────────────────────────────────────────────────────────────
@@ -311,6 +333,13 @@ val GermanStrings = AppStrings(
     navAppraise               = "Bewerten",
     navHistory                = "Verlauf",
     navProfile                = "Profil",
+    navInfo                   = "Info",
+
+    infoTitle                 = "INFO",
+    infoClose                 = "Tippe irgendwo zum Schließen",
+    infoEstimation            = "Je mehr Fotos du hochlädst (bis zu 4) und je detaillierter deine Beschreibung — z. B. Marke, Alter, Zustand — desto genauer wird die KI-Schätzung.\n\nDas Bewertungsergebnis wird in der Sprache zurückgegeben, in der du die Beschreibung verfasst hast.",
+    infoHistory               = "Hier siehst du alle deine bisherigen Bewertungen. Tippe auf einen Eintrag, um das vollständige Ergebnis anzuzeigen.",
+    infoProfile               = "Im Profil kannst du die gewünschte Währung und die App-Sprache einstellen.",
 )
 
 // ── Français ─────────────────────────────────────────────────────────────────
@@ -387,6 +416,13 @@ val FrenchStrings = AppStrings(
     navAppraise               = "Estimer",
     navHistory                = "Historique",
     navProfile                = "Profil",
+    navInfo                   = "Info",
+
+    infoTitle                 = "INFO",
+    infoClose                 = "Appuyez n'importe où pour fermer",
+    infoEstimation            = "Plus vous téléchargez de photos (jusqu'à 4) et plus votre description est détaillée — ex. marque, âge, état — plus l'estimation IA sera précise.\n\nLe résultat de l'estimation sera renvoyé dans la langue dans laquelle vous avez rédigé la description.",
+    infoHistory               = "Ici vous pouvez voir toutes vos estimations précédentes. Appuyez sur l'une d'elles pour voir le résultat complet.",
+    infoProfile               = "Dans le profil, vous pouvez définir la devise souhaitée et la langue de l'application.",
 )
 
 // ── 中文 (Mandarin) ───────────────────────────────────────────────────────────
@@ -463,6 +499,13 @@ val ChineseStrings = AppStrings(
     navAppraise               = "估价",
     navHistory                = "历史",
     navProfile                = "我的",
+    navInfo                   = "信息",
+
+    infoTitle                 = "信息",
+    infoClose                 = "点击任意位置关闭",
+    infoEstimation            = "上传的照片越多（最多4张），描述越详细——如品牌、年份、状态——AI估价就越准确。\n\n估价结果将以您填写描述时所用的语言返回。",
+    infoHistory               = "在这里可以查看所有历史估价记录。点击任意一条查看完整结果。",
+    infoProfile               = "在个人资料中可以设置首选货币和应用语言。",
 )
 
 // ── CompositionLocal ──────────────────────────────────────────────────────────

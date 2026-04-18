@@ -1,27 +1,35 @@
 package com.valuai.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.valuai.TokenManager
 import com.valuai.i18n.LocalStrings
+import com.valuai.network.ImageRepository
 import com.valuai.network.ResultRepository
 import com.valuai.ui.theme.*
+import java.io.File
 
 @Composable
 fun ResultScreen(estimationId: String, navController: NavController) {
@@ -30,6 +38,67 @@ fun ResultScreen(estimationId: String, navController: NavController) {
     val tokenManager = remember { TokenManager(context) }
     val currency by tokenManager.currency.collectAsState(initial = "USD")
     val strings = LocalStrings.current
+    val images = remember(estimationId) { ImageRepository.getImages(context, estimationId) }
+    var showImagesDialog by remember { mutableStateOf(false) }
+
+    if (showImagesDialog) {
+        Dialog(onDismissRequest = { showImagesDialog = false }) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { showImagesDialog = false },
+                colors = CardDefaults.cardColors(containerColor = SurfaceDark),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        for (row in 0..1) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                for (col in 0..1) {
+                                    val index = row * 2 + col
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .aspectRatio(1f)
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .background(
+                                                if (index < images.size) Color(0xFF1E1A14)
+                                                else Color(0xFF12121E)
+                                            )
+                                            .border(
+                                                width = 0.5.dp,
+                                                color = Color(0xFF2A2A3A),
+                                                shape = RoundedCornerShape(8.dp)
+                                            ),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        if (index < images.size) {
+                                            AsyncImage(
+                                                model = File(images[index]),
+                                                contentDescription = null,
+                                                modifier = Modifier.fillMaxSize(),
+                                                contentScale = ContentScale.Crop
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = strings.infoClose,
+                        fontSize = 12.sp,
+                        color = TextSecondary,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
+                }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -49,8 +118,15 @@ fun ResultScreen(estimationId: String, navController: NavController) {
                 Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
             }
             Text(strings.appraisalTitle, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
-            IconButton(onClick = { }) {
-                Icon(Icons.Default.Share, contentDescription = "Share", tint = Color.White)
+            IconButton(
+                onClick = { if (images.isNotEmpty()) showImagesDialog = true },
+                enabled = images.isNotEmpty()
+            ) {
+                Icon(
+                    Icons.Default.Image,
+                    contentDescription = "Images",
+                    tint = if (images.isNotEmpty()) GoldPrimary else TextSecondary
+                )
             }
         }
 
