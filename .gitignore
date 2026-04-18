@@ -13,3 +13,8 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Backend
+backend/.env
+backend/**/__pycache__/
+backend/**/*.pyc

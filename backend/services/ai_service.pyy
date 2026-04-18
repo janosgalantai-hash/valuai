@@ -1,0 +1,98 @@
+import anthropic
+import base64
+from app.core.config import settings
+
+client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
+
+def analyze_images_and_estimate(images_base64: list[str], description: str, currency: str = "USD") -> dict:
+    content = []
+    for img_b64 in images_base64:
+        content.append({
+            "type": "image",
+            "source": {
+                "type": "base64",
+                "media_type": "image/jpeg",
+                "data": img_b64
+            }
+        })
+    content.append({
+        "type": "text",
+        "text": f"""You are an expert appraiser. Analyze the provided images and description, then estimate the market value.
+Description: {description if description else 'No description provided'}
+IMPORTANT: Return ALL prices in {currency} currency. Research current market prices in {currency}.
+Respond ONLY with a JSON object, no markdown, no explanation:
+{{
+  "item_name": "identified item name",
+  "category": "category (watch/jewelry/electronics/collectible/furniture/art/other)",
+  "condition": "excellent/good/fair/poor",
+  "condition_notes": "brief condition assessment",
+  "price_min": 0,
+  "price_max": 0,
+  "price_recommended": 0,
+  "currency": "{currency}",
+  "summary": "2-3 sentence summary in the same language as the description",
+  "market_references_count": 0,
+  "confidence": "high/medium/low"
+}}"""
+    })
+    message = client.messages.create(
+        model="claude-opus-4-5",
+        max_tokens=1024,
+        tools=[{
+            "type": "web_search_20250305",
+            "name": "web_search"
+        }],
+        messages=[{"role": "user", "content": content}]
+    )
+    import json
+    for block in message.content:
+        if block.type == "text":
+            text = block.text.strip()
+            try:
+                return json.loads(text)
+            except json.JSONDecodeError:
+                import re
+                match = re.search(r'\{.*\}', text, re.DOTALL)
+                if match:
+                    return json.loads(match.group())
+def analyze_images_and_estimate(images_base64: list[str], description: str, currency: str = "USD") -> dict:
+    # ... meglévő kód ...
+    
+    # A message létrehozása után:
+    input_tokens = message.usage.input_tokens
+    output_tokens = message.usage.output_tokens
+    
+    for block in message.content:
+        if block.type == "text":
+            text = block.text.strip()
+            try:
+                result = json.loads(text)
+                result["_tokens"] = {
+                    "input": input_tokens,
+                    "output": output_tokens
+                }
+                return result
+            except json.JSONDecodeError:
+                import re
+                match = re.search(r'\{.*\}', text, re.DOTALL)
+                if match:
+                    result = json.loads(match.group())
+                    result["_tokens"] = {
+                        "input": input_tokens,
+                        "output": output_tokens
+                    }
+                    return result
+
+    return {
+        "item_name": "Unknown",
+        "category": "other",
+        "condition": "fair",
+        "condition_notes": "Could not analyze",
+        "price_min": 0,
+        "price_max": 0,
+        "price_recommended": 0,
+        "currency": currency,
+        "summary": "Analysis failed",
+        "market_references_count": 0,
+        "confidence": "low"
+    }
