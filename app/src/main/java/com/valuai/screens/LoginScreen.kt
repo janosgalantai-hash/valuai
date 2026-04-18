@@ -28,8 +28,8 @@ fun LoginScreen(navController: NavController) {
     val state by viewModel.state.collectAsState()
     val strings = LocalStrings.current
 
-    var email by remember { mutableStateOf("test@valuai.com") }
-    var password by remember { mutableStateOf("Test1234!") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
 
     LaunchedEffect(state) {
         if (state is com.valuai.viewmodel.LoginState.Success) {
