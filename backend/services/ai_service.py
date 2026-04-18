@@ -22,7 +22,8 @@ def analyze_images_and_estimate(images_base64: list[str], description: str, curr
     content.append({
         "type": "text",
         "text": f"""Analyze the provided images and description, then estimate the market value.
-Description: {description if description else 'No description provided'}
+User description: {description if description else 'No description provided'}
+CRITICAL: If the user provided a description, it is the PRIMARY source for item identification — trust it over your visual interpretation. Use the images only to assess condition, brand markings, and specific details.
 IMPORTANT: Return ALL prices in {currency} currency. Search for recent sold prices on eBay and marketplaces to base your estimate on real market data.
 Respond ONLY with a JSON object, no markdown, no explanation:
 {{
