@@ -74,6 +74,8 @@ data class AppStrings(
     val currency: String,
     val appLanguage: String,
     val selectCurrency: String,
+    val topUp: String,
+    val comingSoon: String,
 
     // Camera
     val cameraPermissionRequired: String,
@@ -160,6 +162,8 @@ val EnglishStrings = AppStrings(
     currency                  = "Currency",
     appLanguage               = "App Language",
     selectCurrency            = "Select Currency",
+    topUp                     = "Top Up Credits",
+    comingSoon                = "Coming soon",
 
     cameraPermissionRequired  = "Camera permission is required",
     grantPermission           = "Grant Permission",
@@ -173,7 +177,7 @@ val EnglishStrings = AppStrings(
     infoClose                 = "Tap anywhere to close",
     infoEstimation            = "The more photos you upload (up to 4) and the more detailed your description — e.g. brand, age, condition — the more accurate the AI estimate will be.\n\nThe appraisal result will be returned in the language you write the description in.",
     infoHistory               = "Here you can see all your previous appraisals. Tap any item to view the full result.",
-    infoProfile               = "In the profile you can set your preferred currency and the app language.",
+    infoProfile               = "In the profile you can set your preferred currency and the app language.\n\nYou can also top up your credits here to continue using the AI appraisal service.",
 )
 
 // ── Magyar ───────────────────────────────────────────────────────────────────
@@ -243,6 +247,8 @@ val HungarianStrings = AppStrings(
     currency                  = "Valuta",
     appLanguage               = "Alkalmazás nyelve",
     selectCurrency            = "Valuta kiválasztása",
+    topUp                     = "Kredit feltöltés",
+    comingSoon                = "Hamarosan",
 
     cameraPermissionRequired  = "A kamerához hozzáférés szükséges",
     grantPermission           = "Engedély megadása",
@@ -256,7 +262,7 @@ val HungarianStrings = AppStrings(
     infoClose                 = "Koppints bárhova a bezáráshoz",
     infoEstimation            = "Minél több képet töltesz fel (max. 4) és minél részletesebb leírást adsz meg — pl. márka, kor, állapot — annál pontosabb lesz az AI becslés.\n\nA becslés eredménye azon a nyelven érkezik vissza, amelyen a leírást megadtad.",
     infoHistory               = "Itt látod az összes korábbi értékbecslésedet. Koppints bármelyikre a részletes eredmény megtekintéséhez.",
-    infoProfile               = "A profilban beállíthatod a kívánt valutát és az alkalmazás nyelvét.",
+    infoProfile               = "A profilban beállíthatod a kívánt valutát és az alkalmazás nyelvét.\n\nItt töltheted fel a krediteteket az AI értékbecslési szolgáltatás folytatásához.",
 )
 
 // ── Deutsch ──────────────────────────────────────────────────────────────────
@@ -326,6 +332,8 @@ val GermanStrings = AppStrings(
     currency                  = "Währung",
     appLanguage               = "App-Sprache",
     selectCurrency            = "Währung auswählen",
+    topUp                     = "Guthaben aufladen",
+    comingSoon                = "Demnächst",
 
     cameraPermissionRequired  = "Kameraberechtigung erforderlich",
     grantPermission           = "Berechtigung erteilen",
@@ -339,7 +347,7 @@ val GermanStrings = AppStrings(
     infoClose                 = "Tippe irgendwo zum Schließen",
     infoEstimation            = "Je mehr Fotos du hochlädst (bis zu 4) und je detaillierter deine Beschreibung — z. B. Marke, Alter, Zustand — desto genauer wird die KI-Schätzung.\n\nDas Bewertungsergebnis wird in der Sprache zurückgegeben, in der du die Beschreibung verfasst hast.",
     infoHistory               = "Hier siehst du alle deine bisherigen Bewertungen. Tippe auf einen Eintrag, um das vollständige Ergebnis anzuzeigen.",
-    infoProfile               = "Im Profil kannst du die gewünschte Währung und die App-Sprache einstellen.",
+    infoProfile               = "Im Profil kannst du die gewünschte Währung und die App-Sprache einstellen.\n\nHier kannst du auch dein Guthaben aufladen, um den KI-Bewertungsservice weiter zu nutzen.",
 )
 
 // ── Français ─────────────────────────────────────────────────────────────────
@@ -409,6 +417,8 @@ val FrenchStrings = AppStrings(
     currency                  = "Devise",
     appLanguage               = "Langue de l'app",
     selectCurrency            = "Choisir la devise",
+    topUp                     = "Recharger les crédits",
+    comingSoon                = "Bientôt disponible",
 
     cameraPermissionRequired  = "L'accès à la caméra est requis",
     grantPermission           = "Accorder la permission",
@@ -422,7 +432,7 @@ val FrenchStrings = AppStrings(
     infoClose                 = "Appuyez n'importe où pour fermer",
     infoEstimation            = "Plus vous téléchargez de photos (jusqu'à 4) et plus votre description est détaillée — ex. marque, âge, état — plus l'estimation IA sera précise.\n\nLe résultat de l'estimation sera renvoyé dans la langue dans laquelle vous avez rédigé la description.",
     infoHistory               = "Ici vous pouvez voir toutes vos estimations précédentes. Appuyez sur l'une d'elles pour voir le résultat complet.",
-    infoProfile               = "Dans le profil, vous pouvez définir la devise souhaitée et la langue de l'application.",
+    infoProfile               = "Dans le profil, vous pouvez définir la devise souhaitée et la langue de l'application.\n\nVous pouvez également recharger vos crédits ici pour continuer à utiliser le service d'estimation IA.",
 )
 
 // ── 中文 (Mandarin) ───────────────────────────────────────────────────────────
@@ -492,6 +502,8 @@ val ChineseStrings = AppStrings(
     currency                  = "货币",
     appLanguage               = "应用语言",
     selectCurrency            = "选择货币",
+    topUp                     = "充值积分",
+    comingSoon                = "即将推出",
 
     cameraPermissionRequired  = "需要相机权限",
     grantPermission           = "授予权限",
@@ -505,7 +517,7 @@ val ChineseStrings = AppStrings(
     infoClose                 = "点击任意位置关闭",
     infoEstimation            = "上传的照片越多（最多4张），描述越详细——如品牌、年份、状态——AI估价就越准确。\n\n估价结果将以您填写描述时所用的语言返回。",
     infoHistory               = "在这里可以查看所有历史估价记录。点击任意一条查看完整结果。",
-    infoProfile               = "在个人资料中可以设置首选货币和应用语言。",
+    infoProfile               = "在个人资料中可以设置首选货币和应用语言。\n\n您也可以在此充值积分，以继续使用AI估价服务。",
 )
 
 // ── CompositionLocal ──────────────────────────────────────────────────────────

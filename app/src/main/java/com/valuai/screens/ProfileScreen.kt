@@ -173,6 +173,15 @@ fun ProfileScreen() {
             value = language,
             onClick = { showLanguageDialog = true }
         )
+
+        Spacer(modifier = Modifier.height(2.dp))
+
+        SettingsItem(
+            icon = Icons.Default.AddCard,
+            title = strings.topUp,
+            value = strings.comingSoon,
+            onClick = { }
+        )
     }
 }
 
