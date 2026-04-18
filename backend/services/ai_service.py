@@ -6,6 +6,8 @@ from app.core.config import settings
 
 client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
 
+SYSTEM_PROMPT = "You are a professional appraiser with expertise in antiques, collectibles, electronics, jewelry, and watches. You identify items precisely and research actual current sold prices to give accurate market valuations."
+
 def analyze_images_and_estimate(images_base64: list[str], description: str, currency: str = "USD") -> dict:
     content = []
     for img_b64 in images_base64:
@@ -19,9 +21,9 @@ def analyze_images_and_estimate(images_base64: list[str], description: str, curr
         })
     content.append({
         "type": "text",
-        "text": f"""You are an expert appraiser. Analyze the provided images and description, then estimate the market value.
+        "text": f"""Analyze the provided images and description, then estimate the market value.
 Description: {description if description else 'No description provided'}
-IMPORTANT: Return ALL prices in {currency} currency. Research current market prices in {currency}.
+IMPORTANT: Return ALL prices in {currency} currency. Search for recent sold prices on eBay and marketplaces to base your estimate on real market data.
 Respond ONLY with a JSON object, no markdown, no explanation:
 {{
   "item_name": "identified item name",
@@ -40,7 +42,8 @@ Respond ONLY with a JSON object, no markdown, no explanation:
 
     message = client.messages.create(
         model="claude-sonnet-4-5",
-        max_tokens=1024,
+        max_tokens=2048,
+        system=SYSTEM_PROMPT,
         tools=[{
             "type": "web_search_20250305",
             "name": "web_search"
