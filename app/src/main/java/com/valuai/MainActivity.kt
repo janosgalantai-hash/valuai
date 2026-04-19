@@ -45,6 +45,7 @@ import com.valuai.screens.ProfileScreen
 import com.valuai.screens.RegisterScreen
 import com.valuai.screens.ResultScreen
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.text.font.FontStyle
 import kotlinx.coroutines.flow.collectLatest
 
 class MainActivity : ComponentActivity() {
@@ -194,6 +195,16 @@ fun ValuAIApp() {
                         color = androidx.compose.ui.graphics.Color.White,
                         lineHeight = 22.sp
                     )
+                    if (currentRoute == Screen.Estimation.route) {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Text(
+                            text = strings.infoDisclaimer,
+                            fontSize = 13.sp,
+                            fontStyle = FontStyle.Italic,
+                            color = com.valuai.ui.theme.TextSecondary,
+                            lineHeight = 18.sp
+                        )
+                    }
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = strings.infoClose,
