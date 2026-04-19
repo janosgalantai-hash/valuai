@@ -4,12 +4,14 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.valuai.AppEventBus
 import com.valuai.TokenManager
 import com.valuai.network.ApiClient
 import com.valuai.network.EstimationResponse
 import com.valuai.network.ImageRepository
 import com.valuai.network.ResultRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
@@ -38,6 +40,9 @@ class EstimationViewModel : ViewModel() {
 
     private val _description = MutableStateFlow("")
     val description: StateFlow<String> = _description
+
+    private val _statusMessage = MutableStateFlow("")
+    val statusMessage: StateFlow<String> = _statusMessage
 
     fun addImage(filePath: String) {
         if (_imagePaths.value.size < 4) {
@@ -76,6 +81,7 @@ class EstimationViewModel : ViewModel() {
 
     fun resetState() {
         _state.value = EstimationState.Idle
+        _statusMessage.value = ""
         resultNavigated = false
     }
 
@@ -83,13 +89,25 @@ class EstimationViewModel : ViewModel() {
         _state.value = EstimationState.Idle
         _imagePaths.value = emptyList()
         _description.value = ""
+        _statusMessage.value = ""
         resultNavigated = false
     }
 
-    fun startEstimation(context: Context, description: String) {
+    fun startEstimation(context: Context, description: String, statusMessages: List<String>) {
         val paths = _imagePaths.value
         viewModelScope.launch {
             _state.value = EstimationState.Loading
+
+            // Cycle through status messages while loading
+            launch {
+                val delays = listOf(0L, 4000L, 8000L, 13000L, 18000L)
+                for ((index, msg) in statusMessages.withIndex()) {
+                    if (_state.value !is EstimationState.Loading) break
+                    _statusMessage.value = msg
+                    delay(if (index < delays.size - 1) delays[index + 1] - delays[index] else 5000L)
+                }
+            }
+
             try {
                 val tokenManager = TokenManager(context)
                 val token = tokenManager.token.first()
@@ -97,7 +115,6 @@ class EstimationViewModel : ViewModel() {
                 val authToken = "Bearer ${token ?: "TEST_TOKEN"}"
 
                 val imageParts = paths.mapIndexed { index, path ->
-                    val src = File(path)
                     val tempFile = File(context.cacheDir, "upload_$index.jpg")
                     val bitmap = android.graphics.BitmapFactory.decodeFile(path)
                     FileOutputStream(tempFile).use { out ->
@@ -117,16 +134,24 @@ class EstimationViewModel : ViewModel() {
                     currency    = currencyBody
                 )
 
-                if (response.isSuccessful) {
-                    response.body()?.let {
-                        ResultRepository.lastResult = it
-                        ImageRepository.saveImages(context, it.id, paths)
-                        _state.value = EstimationState.Success(it)
-                    } ?: run {
-                        _state.value = EstimationState.Error("Empty response from server")
+                when {
+                    response.code() == 401 -> {
+                        tokenManager.clearToken()
+                        AppEventBus.emitUnauthorized()
                     }
-                } else {
-                    _state.value = EstimationState.Error("Hiba: ${response.code()} — ${response.message()}")
+                    response.isSuccessful -> {
+                        response.body()?.let {
+                            ResultRepository.lastResult = it
+                            ImageRepository.saveImages(context, it.id, paths)
+                            ImageRepository.cleanup(context)
+                            _state.value = EstimationState.Success(it)
+                        } ?: run {
+                            _state.value = EstimationState.Error("Empty response from server")
+                        }
+                    }
+                    else -> {
+                        _state.value = EstimationState.Error("Hiba: ${response.code()} — ${response.message()}")
+                    }
                 }
             } catch (e: Exception) {
                 _state.value = EstimationState.Error(e.message ?: "Unknown error")

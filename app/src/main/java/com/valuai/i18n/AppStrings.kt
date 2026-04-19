@@ -77,6 +77,13 @@ data class AppStrings(
     val topUp: String,
     val comingSoon: String,
 
+    // Estimation status messages
+    val statusAnalyzing: String,
+    val statusIdentifying: String,
+    val statusSearching: String,
+    val statusCalculating: String,
+    val statusAlmostDone: String,
+
     // Camera
     val cameraPermissionRequired: String,
     val grantPermission: String,
@@ -165,6 +172,12 @@ val EnglishStrings = AppStrings(
     topUp                     = "Top Up Credits",
     comingSoon                = "Coming soon",
 
+    statusAnalyzing           = "Analyzing images...",
+    statusIdentifying         = "Identifying item...",
+    statusSearching           = "Searching market prices...",
+    statusCalculating         = "Calculating estimate...",
+    statusAlmostDone          = "Almost done...",
+
     cameraPermissionRequired  = "Camera permission is required",
     grantPermission           = "Grant Permission",
 
@@ -249,6 +262,12 @@ val HungarianStrings = AppStrings(
     selectCurrency            = "Valuta kiválasztása",
     topUp                     = "Kredit feltöltés",
     comingSoon                = "Hamarosan",
+
+    statusAnalyzing           = "Képek elemzése...",
+    statusIdentifying         = "Tárgy azonosítása...",
+    statusSearching           = "Piaci árak keresése...",
+    statusCalculating         = "Becslés kiszámítása...",
+    statusAlmostDone          = "Már majdnem kész...",
 
     cameraPermissionRequired  = "A kamerához hozzáférés szükséges",
     grantPermission           = "Engedély megadása",
@@ -335,6 +354,12 @@ val GermanStrings = AppStrings(
     topUp                     = "Guthaben aufladen",
     comingSoon                = "Demnächst",
 
+    statusAnalyzing           = "Bilder werden analysiert...",
+    statusIdentifying         = "Artikel wird identifiziert...",
+    statusSearching           = "Marktpreise werden gesucht...",
+    statusCalculating         = "Schätzung wird berechnet...",
+    statusAlmostDone          = "Fast fertig...",
+
     cameraPermissionRequired  = "Kameraberechtigung erforderlich",
     grantPermission           = "Berechtigung erteilen",
 
@@ -419,6 +444,12 @@ val FrenchStrings = AppStrings(
     selectCurrency            = "Choisir la devise",
     topUp                     = "Recharger les crédits",
     comingSoon                = "Bientôt disponible",
+
+    statusAnalyzing           = "Analyse des images...",
+    statusIdentifying         = "Identification de l'article...",
+    statusSearching           = "Recherche des prix du marché...",
+    statusCalculating         = "Calcul de l'estimation...",
+    statusAlmostDone          = "Presque terminé...",
 
     cameraPermissionRequired  = "L'accès à la caméra est requis",
     grantPermission           = "Accorder la permission",
@@ -505,6 +536,12 @@ val ChineseStrings = AppStrings(
     topUp                     = "充值积分",
     comingSoon                = "即将推出",
 
+    statusAnalyzing           = "正在分析图片...",
+    statusIdentifying         = "正在识别物品...",
+    statusSearching           = "正在搜索市场价格...",
+    statusCalculating         = "正在计算估价...",
+    statusAlmostDone          = "即将完成...",
+
     cameraPermissionRequired  = "需要相机权限",
     grantPermission           = "授予权限",
 
@@ -589,6 +626,12 @@ val FilipinoStrings = AppStrings(
     selectCurrency            = "Pumili ng Pera",
     topUp                     = "Mag-top Up ng Kredito",
     comingSoon                = "Paparating na",
+
+    statusAnalyzing           = "Sinusuri ang mga larawan...",
+    statusIdentifying         = "Kinikilala ang aytem...",
+    statusSearching           = "Hinahanap ang mga presyo...",
+    statusCalculating         = "Kinakalkula ang pagtatantya...",
+    statusAlmostDone          = "Malapit nang matapos...",
 
     cameraPermissionRequired  = "Kailangan ang pahintulot sa camera",
     grantPermission           = "Bigyan ng Pahintulot",

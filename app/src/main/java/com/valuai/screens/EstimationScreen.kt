@@ -47,6 +47,7 @@ fun EstimationScreen(navController: NavController) {
 
     val imagePaths by viewModel.imagePaths.collectAsState()
     val description by viewModel.description.collectAsState()
+    val statusMessage by viewModel.statusMessage.collectAsState()
 
     var showImageSourceDialog by remember { mutableStateOf(false) }
     val slots = 4
@@ -265,7 +266,13 @@ fun EstimationScreen(navController: NavController) {
         Button(
             onClick = {
                 if (imagePaths.isNotEmpty() && description.isNotBlank()) {
-                    viewModel.startEstimation(context, description)
+                    viewModel.startEstimation(context, description, listOf(
+                        strings.statusAnalyzing,
+                        strings.statusIdentifying,
+                        strings.statusSearching,
+                        strings.statusCalculating,
+                        strings.statusAlmostDone
+                    ))
                 }
             },
             enabled = imagePaths.isNotEmpty() &&
@@ -279,8 +286,22 @@ fun EstimationScreen(navController: NavController) {
             )
         ) {
             if (state is EstimationState.Loading) {
-                CircularProgressIndicator(color = BackgroundDark,
-                    modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    CircularProgressIndicator(
+                        color = BackgroundDark,
+                        modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp
+                    )
+                    Text(
+                        text = statusMessage,
+                        fontSize = 13.sp,
+                        color = Color(0xFF1A1200),
+                        fontWeight = FontWeight.Medium
+                    )
+                }
             } else {
                 Text(strings.startAppraisal, fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold, color = Color(0xFF1A1200))

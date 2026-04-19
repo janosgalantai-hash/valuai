@@ -44,6 +44,8 @@ import com.valuai.screens.HistoryScreen
 import com.valuai.screens.ProfileScreen
 import com.valuai.screens.RegisterScreen
 import com.valuai.screens.ResultScreen
+import androidx.compose.runtime.LaunchedEffect
+import kotlinx.coroutines.flow.collectLatest
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,6 +70,14 @@ fun ValuAIApp() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     var showInfoDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        AppEventBus.unauthorized.collectLatest {
+            navController.navigate(Screen.Login.route) {
+                popUpTo(0) { inclusive = true }
+            }
+        }
+    }
 
     // Bottom nav csak a fő képernyőkön látszik (Info nem saját route, ezért kizárjuk)
     val showBottomBar = bottomNavItems
