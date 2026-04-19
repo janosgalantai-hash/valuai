@@ -47,7 +47,8 @@ Respond ONLY with a JSON object, no markdown, no explanation:
         system=SYSTEM_PROMPT,
         tools=[{
             "type": "web_search_20250305",
-            "name": "web_search"
+            "name": "web_search",
+            "max_uses": 2
         }],
         messages=[{"role": "user", "content": content}]
     )
